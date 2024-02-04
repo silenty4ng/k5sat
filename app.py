@@ -52,12 +52,12 @@ def doppler():
     satellite = ephem.readtle(sat, sat_line_1, sat_line_2)
     # print(str(pass_time) + " " + str(local2utc(pass_time)))
     shift_array = []
-    while pass_time < departure_time + timedelta(seconds=2):
+    while pass_time < departure_time + timedelta(seconds=1):
         AZ, EI, SHITF_UP, SHIFT_DOWN, DIS = head.CAL_DATA(
             satellite, sat_line_1, sat_line_2, float(lng), float(lat),
             float(alt), local2utc(pass_time),
             float(tx) * 1000000,
             float(rx) * 1000000)
         shift_array.append([SHITF_UP, SHIFT_DOWN])
-        pass_time = pass_time + timedelta(seconds=2)
+        pass_time = pass_time + timedelta(seconds=1)
     return jsonify({'code': 200, 'shift_array': shift_array})

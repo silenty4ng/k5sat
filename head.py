@@ -68,7 +68,7 @@ def CAL_DATA(satellite,line1,line2,observer_lon,observer_lat,observer_elevation,
     # 获取卫星的速度（单位：km/s）
     range_rate = satellite.range_velocity / 1000
     # print("速度:", range_rate, "km/s")
-    UP_SHIFT = -range_rate / 299792.458 * UP_HZ  # 单位：Hz
+    UP_SHIFT = range_rate / 299792.458 * UP_HZ  # 单位：Hz
     DOWN_SHIFT = -range_rate / 299792.458 * DOWN_HZ  # 单位：Hz
     DIS = satellite.range / 1000  # 单位从m转换为km
     return round(math.degrees(float(satellite.az)),2),   round(math.degrees(float(satellite.alt)),2),round(UP_SHIFT,0),round(DOWN_SHIFT,0),round(DIS,2)

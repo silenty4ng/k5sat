@@ -1,8 +1,9 @@
 import head
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import cross_origin
 import ephem
+import os
 
 app = Flask(__name__)
 
@@ -11,6 +12,10 @@ def local2utc(local_dtm):
     # 本地时间转 UTC 时间（ -8:00 ）
     return datetime.utcfromtimestamp(local_dtm.timestamp())
 
+@app.route("/amateur.txt")
+@cross_origin()
+def amateur():
+    return send_from_directory(os.getcwd(), "amateur.txt")
 
 @app.route("/pass", methods=['POST'])
 @cross_origin()

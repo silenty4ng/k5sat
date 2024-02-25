@@ -1,21 +1,30 @@
 import head
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import cross_origin
 import ephem
-import os
+import redis
+import uuid
 
 app = Flask(__name__)
+r = redis.Redis(host='127.0.0.1', port=6379, db=0)
 
 
 def local2utc(local_dtm):
     # 本地时间转 UTC 时间（ -8:00 ）
     return datetime.utcfromtimestamp(local_dtm.timestamp())
 
-@app.route("/amateur.txt")
+@app.route("/lol")
 @cross_origin()
-def amateur():
-    return send_from_directory(os.getcwd(), "amateur.txt")
+def lol():
+    func = request.json.get('func', 0)
+    _uuid = request.json.get('uuid', str(uuid.uuid4()))
+    _cache = request.json.get('cache', '')
+    if func == 0:
+        r.set(_uuid, _cache, 600)
+    else:
+        r.get(_uuid)
+    return jsonify({'code': 200, 'uuid': _uuid, 'cache': _cache})
 
 @app.route("/pass", methods=['POST'])
 @cross_origin()

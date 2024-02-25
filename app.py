@@ -14,7 +14,7 @@ def local2utc(local_dtm):
     # 本地时间转 UTC 时间（ -8:00 ）
     return datetime.utcfromtimestamp(local_dtm.timestamp())
 
-@app.route("/lol")
+@app.route("/lol", methods=['POST'])
 @cross_origin()
 def lol():
     func = request.json.get('func', 0)

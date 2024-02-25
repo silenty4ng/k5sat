@@ -23,7 +23,7 @@ def lol():
     if func == 0:
         r.set(_uuid, _cache, 600)
     else:
-        _cache = r.get(_uuid)
+        _cache = str(r.get(_uuid))
     return jsonify({'code': 200, 'uuid': _uuid, 'cache': _cache})
 
 @app.route("/pass", methods=['POST'])

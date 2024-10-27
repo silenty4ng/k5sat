@@ -26,7 +26,7 @@ def find_lines_after_string(filename, search_string):
                     line2 = lines[i+2].strip()
                 break
     return line1, line2
-def CAL_PASS_TIME(target_satellite, observer_lat, observer_lon, observer_elevation):
+def CAL_PASS_TIME(target_satellite, observer_lat, observer_lon, observer_elevation, tz="Asia/Shanghai"):
     topos = Topos(latitude_degrees=observer_lat, longitude_degrees=observer_lon,
                   elevation_m=observer_elevation)
     # 获取当前时间并创建Skyfield的时间对象
@@ -35,21 +35,21 @@ def CAL_PASS_TIME(target_satellite, observer_lat, observer_lon, observer_elevati
     t0 = ts.utc(now)
     t1 = t0 + timedelta(days=2)  # 查找2天内过境时间
     passes = target_satellite.find_events(topos, t0, t1)
-    # 获取北京时区
-    beijing_tz = pytz.timezone('Asia/Shanghai')
+    # 获取当地时区
+    local_tz = pytz.timezone(tz)
 
     pass_times = []
     departure_times = []
     if not passes[0]:
         return None, None
-    # 打印下一次过境的北京时间和离境时间
+    # 打印下一次过境的当地时间和离境时间
     for time, event in zip(passes[0], passes[1]):
         if event == 0:  # 0表示升，1表示降
-            # 将UTC时间转换为北京时间
-            beijing_time = time.utc_datetime().replace(tzinfo=pytz.utc).astimezone(beijing_tz)
-            pass_times.append(beijing_time.strftime('%Y-%m-%d %H:%M:%S'))
+            # 将UTC时间转换为当地时间
+            local_time = time.utc_datetime().replace(tzinfo=pytz.utc).astimezone(local_tz)
+            pass_times.append(local_time.strftime('%Y-%m-%d %H:%M:%S'))
         elif event == 2:
-            departure_time_utc = time.utc_datetime().replace(tzinfo=pytz.utc).astimezone(beijing_tz)
+            departure_time_utc = time.utc_datetime().replace(tzinfo=pytz.utc).astimezone(local_tz)
             departure_times.append(departure_time_utc.strftime('%Y-%m-%d %H:%M:%S'))
 
     return pass_times, departure_times

@@ -5,14 +5,15 @@ from flask_cors import cross_origin
 import ephem
 import redis
 import uuid
+import dateutil
 
 app = Flask(__name__)
 r = redis.Redis(host='127.0.0.1', port=6379, db=0)
 
 
-def local2utc(local_dtm):
+def local2utc(local_dtm, tz="Asia/Shanghai"):
     # 本地时间转 UTC 时间（ -8:00 ）
-    return datetime.utcfromtimestamp(local_dtm.timestamp())
+    return datetime.utcfromtimestamp(local_dtm.replace(tzinfo=dateutil.tz.gettz(tz)).timestamp())
 
 @app.route("/lol", methods=['POST'])
 @cross_origin()
@@ -36,11 +37,12 @@ def satpass():
     lat = request.json.get('lat', 0)
     lng = request.json.get('lng', 0)
     alt = request.json.get('alt', 0)
+    tz = request.json.get('tz', "Asia/Shanghai")
 
     target_satellite, find_flag = head.FIND_SATE(sat_line_1, sat_line_2, sat)
     pass_times, departure_times = head.CAL_PASS_TIME(target_satellite,
                                                      float(lat), float(lng),
-                                                     float(alt))
+                                                     float(alt), tz)
 
     return jsonify({
         'code': 200,
@@ -60,6 +62,7 @@ def doppler():
     alt = request.json.get('alt', 0)
     tx = request.json.get('tx', 0)
     rx = request.json.get('rx', 0)
+    tz = request.json.get('tz', "Asia/Shanghai")
     format = "%Y-%m-%d %H:%M:%S"
     pass_time = datetime.strptime(request.json.get('pass_time', ''), format)
     departure_time = datetime.strptime(request.json.get('departure_time', ''),
@@ -70,7 +73,7 @@ def doppler():
     while pass_time < departure_time + timedelta(seconds=1):
         AZ, EI, SHITF_UP, SHIFT_DOWN, DIS = head.CAL_DATA(
             satellite, sat_line_1, sat_line_2, float(lng), float(lat),
-            float(alt), local2utc(pass_time),
+            float(alt), local2utc(pass_time, tz),
             float(tx) * 1000000,
             float(rx) * 1000000)
         shift_array.append([SHITF_UP, SHIFT_DOWN])
